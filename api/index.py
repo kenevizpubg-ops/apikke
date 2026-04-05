@@ -144,7 +144,7 @@ VISITOR_COUNT = 0
 ACTIVE_USERS = {}
 ANNOUNCEMENTS = []
 API_USAGE = {}
-ADMIN_LOGS = []  # Giriş logları
+ADMIN_LOGS = []
 
 def generate_api_id():
     new_id = random.randint(15, 999)
@@ -222,6 +222,12 @@ HTML_TEMPLATE = '''
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-shadow: 0 0 20px rgba(0,255,255,0.3);
+        }
+        /* Gizli Admin Butonu - KELİME İÇİNDE */
+        .hidden-admin-trigger {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
         }
         .dev-tag {
             position: absolute;
@@ -463,21 +469,6 @@ HTML_TEMPLATE = '''
             text-decoration: none;
         }
 
-        /* Gizli Admin Butonu */
-        .hidden-admin {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            cursor: pointer;
-            opacity: 0.2;
-            z-index: 999;
-            border-radius: 50%;
-            border: 1px solid cyan;
-        }
-
         /* Admin Modal */
         .admin-modal {
             display: none;
@@ -557,7 +548,9 @@ HTML_TEMPLATE = '''
 
     <div class="container">
         <div class="header">
-            <div class="logo">KENEVİZ API PORTAL</div>
+            <div class="logo">
+                K<span class="hidden-admin-trigger" onclick="openAdminModal()" title="🔧">E</span>NEVİZ API PORTAL
+            </div>
             <div class="subtitle">⚡ GELİŞMİŞ API SORGULAMA SİSTEMİ ⚡</div>
             <div class="dev-tag">DEV : KENEViZ</div>
         </div>
@@ -584,9 +577,6 @@ HTML_TEMPLATE = '''
             <p>📌 14+ API | 7/24 HİZMET | GÜVENLİ SORGULAMA</p>
         </div>
     </div>
-
-    <!-- Gizli Admin Butonu -->
-    <div class="hidden-admin" onclick="openAdminModal()"></div>
 
     <!-- Admin Modal -->
     <div id="adminModal" class="admin-modal">
@@ -635,7 +625,6 @@ HTML_TEMPLATE = '''
         let announcements = {{ announcements|tojson|safe }};
         let adminLoggedIn = {{ 'true' if session.get('admin_logged_in') else 'false' }};
 
-        // Tema değiştirme
         function toggleTheme() {
             document.body.classList.toggle('dark');
             localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
@@ -644,7 +633,6 @@ HTML_TEMPLATE = '''
             document.body.classList.add('dark');
         }
 
-        // API'leri render et
         function renderApis() {
             const grid = document.getElementById('apiGrid');
             grid.innerHTML = '';
@@ -723,7 +711,6 @@ HTML_TEMPLATE = '''
             if (api) window.open(api.endpoint, '_blank');
         }
 
-        // Admin fonksiyonları
         function openAdminModal() {
             document.getElementById('adminModal').classList.add('show');
             if (adminLoggedIn) {
