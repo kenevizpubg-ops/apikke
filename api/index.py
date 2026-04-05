@@ -10,7 +10,7 @@ app.secret_key = "keneviz_secret_key_2026"
 
 ADMIN_KEY = "devkeneviz"
 
-# ============ VERİTABANLARI ============
+# ============ TÜM API'LER ============
 APIS_DB = {
     1: {
         "name": "WEB ANALİZ",
@@ -92,6 +92,51 @@ APIS_DB = {
         "desc": "Kullanıcı bilgisi sorgula",
         "response_type": "json",
         "icon": "👤"
+    },
+    10: {
+        "name": "GSM SORGU",
+        "endpoint": "https://kenevizglobalgsm-nameapi.vercel.app/api/gsm-name",
+        "params": {"number": ""},
+        "method": "GET",
+        "desc": "Telefon numarası sahibini sorgula",
+        "response_type": "json",
+        "icon": "📱"
+    },
+    11: {
+        "name": "TABİİ CHECKER",
+        "endpoint": "https://keneviztabiicheckerapi.vercel.app/tabiicheck",
+        "params": {"login": ""},
+        "method": "GET",
+        "desc": "Hesap doğrulama kontrolü",
+        "response_type": "json",
+        "icon": "✅"
+    },
+    12: {
+        "name": "URL IP ÇEK",
+        "endpoint": "https://kenevizurlipcekiciapi.vercel.app/urlipcek",
+        "params": {"url": ""},
+        "method": "GET",
+        "desc": "Domain IP adresini bul",
+        "response_type": "json",
+        "icon": "🌐"
+    },
+    13: {
+        "name": "BİN SORGU",
+        "endpoint": "https://kenevizbinsorguapi.vercel.app/binsorgu",
+        "params": {"bin": ""},
+        "method": "GET",
+        "desc": "Kart BIN sorgulama",
+        "response_type": "json",
+        "icon": "💳"
+    },
+    14: {
+        "name": "İNDEX ÇEK",
+        "endpoint": "https://kenevizindexcekenapi.vercel.app/index",
+        "params": {"url": ""},
+        "method": "GET",
+        "desc": "Site kaynak kodunu al",
+        "response_type": "text",
+        "icon": "📄"
     }
 }
 
@@ -101,9 +146,9 @@ ANNOUNCEMENTS = []
 API_USAGE = {}
 
 def generate_api_id():
-    new_id = random.randint(10, 999)
+    new_id = random.randint(15, 999)
     while new_id in APIS_DB:
-        new_id = random.randint(10, 999)
+        new_id = random.randint(15, 999)
     return new_id
 
 HTML_TEMPLATE = '''
@@ -112,7 +157,7 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KENEVİZ • WEB SORGULAMA SİSTEMİ</title>
+    <title>KENEVİZ API PORTAL</title>
     <style>
         * {
             margin: 0;
@@ -120,11 +165,33 @@ HTML_TEMPLATE = '''
             box-sizing: border-box;
         }
 
+        /* Tema Değişkenleri */
+        :root {
+            --bg: linear-gradient(135deg, #f5f0ff 0%, #fce4ec 50%, #e8eaf6 100%);
+            --card-bg: white;
+            --text: #333;
+            --text-light: #888;
+            --border: rgba(155, 89, 182, 0.1);
+            --shadow: rgba(0,0,0,0.05);
+            --neon: 0 0 5px rgba(155, 89, 182, 0.3);
+        }
+        body.dark {
+            --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --card-bg: #1e1e2e;
+            --text: #eee;
+            --text-light: #aaa;
+            --border: rgba(155, 89, 182, 0.2);
+            --shadow: rgba(0,0,0,0.2);
+            --neon: 0 0 10px rgba(155, 89, 182, 0.5);
+        }
+
         body {
-            background: linear-gradient(135deg, #f5f0ff 0%, #fce4ec 50%, #e8eaf6 100%);
+            background: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             min-height: 100vh;
             padding: 20px;
+            transition: all 0.3s ease;
+            color: var(--text);
         }
 
         .container {
@@ -135,7 +202,8 @@ HTML_TEMPLATE = '''
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            position: relative;
         }
         .logo {
             font-size: 3em;
@@ -145,16 +213,42 @@ HTML_TEMPLATE = '''
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: -1px;
+            text-shadow: var(--neon);
         }
-        .logo span {
-            font-size: 0.5em;
-            background: none;
-            -webkit-text-fill-color: #888;
+        .dev-tag {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: rgba(155, 89, 182, 0.15);
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.7em;
+            color: #9b59b6;
+            font-weight: bold;
         }
         .subtitle {
-            color: #6c5ce7;
+            color: var(--text-light);
             margin-top: 10px;
-            font-size: 0.85em;
+            font-size: 0.9em;
+        }
+
+        /* Tema Butonu */
+        .theme-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border: 1px solid #9b59b6;
+            border-radius: 30px;
+            padding: 8px 15px;
+            cursor: pointer;
+            z-index: 998;
+            font-size: 0.8em;
+            color: var(--text);
+            box-shadow: var(--shadow);
+        }
+        .theme-btn:hover {
+            box-shadow: var(--neon);
         }
 
         /* Stats Bar */
@@ -166,26 +260,26 @@ HTML_TEMPLATE = '''
             flex-wrap: wrap;
         }
         .stat-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 15px 30px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            min-width: 150px;
+            box-shadow: 0 5px 15px var(--shadow);
+            border: 1px solid var(--border);
         }
         .stat-card h3 {
             color: #e91e63;
-            font-size: 0.7em;
+            font-size: 0.75em;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         .stat-card .number {
-            font-size: 2em;
+            font-size: 2.2em;
             font-weight: bold;
             color: #6c5ce7;
         }
 
-        /* Announcement */
+        /* Duyuru */
         .announcement {
             background: linear-gradient(135deg, #9b59b6, #e91e63);
             border-radius: 15px;
@@ -196,49 +290,41 @@ HTML_TEMPLATE = '''
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
+            box-shadow: var(--neon);
         }
-        .announcement .icon {
-            font-size: 1.5em;
-        }
-        .announcement .text {
-            flex: 1;
-            font-size: 0.9em;
-        }
-        .announcement .date {
-            font-size: 0.7em;
-            opacity: 0.8;
-        }
+        .announcement .icon { font-size: 1.5em; }
+        .announcement .text { flex: 1; font-size: 0.95em; }
+        .announcement .date { font-size: 0.7em; opacity: 0.8; }
 
         /* API Grid */
         .api-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
             margin-bottom: 40px;
         }
         .api-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 20px;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border: 1px solid rgba(155, 89, 182, 0.1);
+            box-shadow: 0 5px 15px var(--shadow);
+            border: 1px solid var(--border);
         }
         .api-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.15);
+            transform: translateY(-5px);
+            box-shadow: var(--neon);
         }
         .api-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
         }
-        .api-icon {
-            font-size: 1.8em;
-        }
+        .api-icon { font-size: 2em; }
         .api-name {
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: bold;
             color: #6c5ce7;
         }
@@ -246,41 +332,44 @@ HTML_TEMPLATE = '''
             margin-left: auto;
             background: #e8f5e9;
             color: #4caf50;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.6em;
+            font-size: 0.65em;
         }
         .api-desc {
-            color: #888;
-            font-size: 0.75em;
+            color: var(--text-light);
+            font-size: 0.85em;
             margin-bottom: 15px;
+            line-height: 1.4;
         }
         .param-input {
             margin-bottom: 12px;
         }
         .param-input label {
             display: block;
-            font-size: 0.7em;
+            font-size: 0.75em;
             color: #9b59b6;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             font-weight: 600;
         }
         .param-input input {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e0e0e0;
+            padding: 10px 14px;
+            background: var(--card-bg);
+            border: 1px solid #ddd;
             border-radius: 12px;
-            font-size: 0.85em;
+            font-size: 0.9em;
+            color: var(--text);
             transition: all 0.3s;
         }
         .param-input input:focus {
             outline: none;
             border-color: #9b59b6;
-            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+            box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
         }
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: 15px;
         }
         .query-btn {
@@ -288,21 +377,21 @@ HTML_TEMPLATE = '''
             background: linear-gradient(135deg, #9b59b6, #e91e63);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.8em;
+            font-size: 0.85em;
         }
         .url-btn {
             flex: 1;
             background: linear-gradient(135deg, #6c5ce7, #a363d9);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 30px;
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 0.85em;
         }
         .query-btn:hover, .url-btn:hover {
             opacity: 0.9;
@@ -311,46 +400,41 @@ HTML_TEMPLATE = '''
         .result {
             margin-top: 15px;
             padding: 12px;
-            background: #f8f9fa;
+            background: rgba(0,0,0,0.05);
             border-radius: 12px;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
             display: none;
-            font-size: 0.7em;
+            font-size: 0.8em;
         }
-        .result.show {
-            display: block;
-        }
+        .result.show { display: block; }
         .result pre {
             white-space: pre-wrap;
             font-family: monospace;
-            color: #333;
+            color: var(--text);
+            font-size: 0.75em;
         }
         .result-image {
             max-width: 100%;
             border-radius: 10px;
         }
-        .result-audio {
-            width: 100%;
-        }
+        .result-audio { width: 100%; }
         .loading {
             text-align: center;
             padding: 10px;
             display: none;
             color: #9b59b6;
-            font-size: 0.8em;
+            font-size: 0.85em;
         }
-        .loading.show {
-            display: block;
-        }
+        .loading.show { display: block; }
 
         /* Footer */
         .footer {
             text-align: center;
             padding: 20px;
-            color: #9b59b6;
-            font-size: 0.7em;
-            border-top: 1px solid rgba(155, 89, 182, 0.2);
+            color: var(--text-light);
+            font-size: 0.75em;
+            border-top: 1px solid var(--border);
         }
         .footer a {
             color: #e91e63;
@@ -378,33 +462,34 @@ HTML_TEMPLATE = '''
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
-        .admin-modal.show {
-            display: flex;
-        }
+        .admin-modal.show { display: flex; }
         .admin-modal-content {
-            background: white;
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 25px;
-            width: 450px;
+            width: 500px;
             max-width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            border: 1px solid #9b59b6;
         }
-        .admin-modal-content h3 {
+        .admin-modal-content h3, .admin-modal-content h4 {
             color: #9b59b6;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .admin-modal-content input, .admin-modal-content textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
+            background: var(--card-bg);
             border: 1px solid #ddd;
             border-radius: 10px;
+            color: var(--text);
         }
         .admin-modal-content button {
             background: linear-gradient(135deg, #9b59b6, #e91e63);
@@ -414,38 +499,42 @@ HTML_TEMPLATE = '''
             border-radius: 25px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 10px;
         }
-        hr {
-            margin: 15px 0;
-            border: none;
-            border-top: 1px solid #eee;
+        .announcement-item {
+            background: rgba(155, 89, 182, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
+        .announcement-item .text { flex: 1; font-size: 0.85em; }
+        .announcement-item button {
+            background: #6c5ce7;
+            padding: 5px 10px;
+            font-size: 0.7em;
+        }
+        hr { margin: 15px 0; border-color: var(--border); }
     </style>
 </head>
 <body>
+    <button class="theme-btn" onclick="toggleTheme()">🌓 TEMA DEĞİŞTİR</button>
+
     <div class="container">
         <div class="header">
-            <div class="logo">KENEVİZ <span>WEB SORGULAMA</span></div>
-            <div class="subtitle">⚡ SİSTEMİ v3.0 ⚡</div>
+            <div class="logo">KENEVİZ API PORTAL</div>
+            <div class="subtitle">⚡ GELİŞMİŞ API SORGULAMA SİSTEMİ ⚡</div>
+            <div class="dev-tag">DEV : KENEViZ</div>
         </div>
 
         <div class="stats-bar">
-            <div class="stat-card">
-                <h3>👥 ZİYARETÇİ</h3>
-                <div class="number">{{ visitor_count }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>🟢 AKTİF</h3>
-                <div class="number">{{ active_count }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>📊 API</h3>
-                <div class="number">{{ apis|length }}</div>
-            </div>
-            <div class="stat-card">
-                <h3>⚡ HİZMET</h3>
-                <div class="number">24/7</div>
-            </div>
+            <div class="stat-card"><h3>👥 ZİYARETÇİ</h3><div class="number">{{ visitor_count }}</div></div>
+            <div class="stat-card"><h3>🟢 AKTİF</h3><div class="number">{{ active_count }}</div></div>
+            <div class="stat-card"><h3>📊 API</h3><div class="number">{{ apis|length }}</div></div>
+            <div class="stat-card"><h3>⚡ HİZMET</h3><div class="number">24/7</div></div>
         </div>
 
         {% if announcement %}
@@ -459,8 +548,8 @@ HTML_TEMPLATE = '''
         <div class="api-grid" id="apiGrid"></div>
 
         <div class="footer">
-            <p>⚡ KENEVİZ API • <a href="#">@KenevizOrjin</a></p>
-            <p>📌 KULLANIM | Bir API seçin ve sorgulama yapın</p>
+            <p>⚡ KENEVIZ API PORTAL • <a href="#">@KenevizOrjin</a></p>
+            <p>📌 14+ API | 7/24 HİZMET | GÜVENLİ SORGULAMA</p>
         </div>
     </div>
 
@@ -476,9 +565,10 @@ HTML_TEMPLATE = '''
             <button onclick="closeAdminModal()">KAPAT</button>
             <div id="adminPanel" style="display:none; margin-top:20px;">
                 <hr>
-                <h4>📢 DUYURU EKLE</h4>
-                <textarea id="announceText" rows="2" placeholder="Duyuru metni..."></textarea>
-                <button onclick="addAnnouncement()">📢 YAYINLA</button>
+                <h4>📢 DUYURU YÖNETİMİ</h4>
+                <textarea id="announceText" rows="2" placeholder="Yeni duyuru metni..."></textarea>
+                <button onclick="addAnnouncement()">➕ YENİ DUYURU EKLE</button>
+                <div id="announceList" style="margin-top:15px;"></div>
                 <hr>
                 <h4>➕ YENİ API EKLE</h4>
                 <input type="text" id="apiName" placeholder="API Adı">
@@ -500,8 +590,19 @@ HTML_TEMPLATE = '''
     <script>
         let apisData = {{ apis|tojson|safe }};
         let apiUsage = {{ api_usage|tojson|safe }};
+        let announcements = {{ announcements|tojson|safe }};
         const ADMIN_KEY = "devkeneviz";
 
+        // Tema değiştirme
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+
+        // API'leri render et
         function renderApis() {
             const grid = document.getElementById('apiGrid');
             grid.innerHTML = '';
@@ -580,9 +681,11 @@ HTML_TEMPLATE = '''
             if (api) window.open(api.endpoint, '_blank');
         }
 
+        // Admin fonksiyonları
         function openAdminModal() {
             document.getElementById('adminModal').classList.add('show');
             document.getElementById('adminPanel').style.display = 'none';
+            renderAnnouncements();
         }
 
         function closeAdminModal() {
@@ -594,9 +697,28 @@ HTML_TEMPLATE = '''
             if (key === ADMIN_KEY) {
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('adminKey').value = '';
+                renderAnnouncements();
             } else {
                 alert('❌ Hatalı Admin Key!');
             }
+        }
+
+        function renderAnnouncements() {
+            const list = document.getElementById('announceList');
+            if (!list) return;
+            list.innerHTML = '<h5>Mevcut Duyurular:</h5>';
+            announcements.forEach((ann, idx) => {
+                list.innerHTML += `
+                    <div class="announcement-item">
+                        <div class="text">${ann.text}</div>
+                        <div class="date">${ann.date}</div>
+                        <button onclick="editAnnouncement(${idx})">✏️ Düzenle</button>
+                        <button onclick="deleteAnnouncement(${idx})">🗑️ Sil</button>
+                        <button onclick="moveAnnouncement(${idx}, 'up')">⬆️</button>
+                        <button onclick="moveAnnouncement(${idx}, 'down')">⬇️</button>
+                    </div>
+                `;
+            });
         }
 
         async function addAnnouncement() {
@@ -612,6 +734,30 @@ HTML_TEMPLATE = '''
                 alert('Duyuru eklendi!');
                 location.reload();
             }
+        }
+
+        async function editAnnouncement(idx) {
+            const newText = prompt('Yeni duyuru metni:', announcements[idx].text);
+            if (newText) {
+                const res = await fetch(`/api/announcement/${idx}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: newText })
+                });
+                if (res.ok) location.reload();
+            }
+        }
+
+        async function deleteAnnouncement(idx) {
+            if (confirm('Duyuru silinsin mi?')) {
+                await fetch(`/api/announcement/${idx}`, { method: 'DELETE' });
+                location.reload();
+            }
+        }
+
+        async function moveAnnouncement(idx, direction) {
+            await fetch(`/api/announcement/move/${idx}?direction=${direction}`, { method: 'POST' });
+            location.reload();
         }
 
         async function addApi() {
@@ -659,14 +805,11 @@ HTML_TEMPLATE = '''
 @app.route('/')
 def index():
     global VISITOR_COUNT
-    session.permanent = True
     VISITOR_COUNT += 1
     
-    # Aktif kullanıcıları güncelle
     session_id = request.headers.get('User-Agent', str(random.random()))
     ACTIVE_USERS[session_id] = time.time()
     
-    # 5 dakikadan eski kullanıcıları temizle
     now = time.time()
     expired = [k for k, v in ACTIVE_USERS.items() if now - v > 300]
     for k in expired:
@@ -674,13 +817,12 @@ def index():
     
     current_announcement = ANNOUNCEMENTS[-1] if ANNOUNCEMENTS else None
     
-    total_api_usage = sum(API_USAGE.values())
-    
     return render_template_string(HTML_TEMPLATE, 
                                   apis=APIS_DB,
                                   visitor_count=VISITOR_COUNT,
                                   active_count=len(ACTIVE_USERS),
                                   announcement=current_announcement,
+                                  announcements=ANNOUNCEMENTS,
                                   api_usage=API_USAGE)
 
 @app.route('/api/heartbeat', methods=['POST'])
@@ -698,10 +840,35 @@ def add_announcement():
             'text': text,
             'date': datetime.now().strftime('%d.%m.%Y %H:%M')
         })
-        if len(ANNOUNCEMENTS) > 10:
-            ANNOUNCEMENTS.pop(0)
         return jsonify({"success": True})
     return jsonify({"success": False}), 400
+
+@app.route('/api/announcement/<int:idx>', methods=['PUT'])
+def edit_announcement(idx):
+    if 0 <= idx < len(ANNOUNCEMENTS):
+        data = request.json
+        ANNOUNCEMENTS[idx]['text'] = data.get('text', ANNOUNCEMENTS[idx]['text'])
+        ANNOUNCEMENTS[idx]['date'] = datetime.now().strftime('%d.%m.%Y %H:%M')
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 404
+
+@app.route('/api/announcement/<int:idx>', methods=['DELETE'])
+def delete_announcement(idx):
+    if 0 <= idx < len(ANNOUNCEMENTS):
+        ANNOUNCEMENTS.pop(idx)
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 404
+
+@app.route('/api/announcement/move/<int:idx>', methods=['POST'])
+def move_announcement(idx):
+    direction = request.args.get('direction', '')
+    if 0 <= idx < len(ANNOUNCEMENTS):
+        if direction == 'up' and idx > 0:
+            ANNOUNCEMENTS[idx], ANNOUNCEMENTS[idx-1] = ANNOUNCEMENTS[idx-1], ANNOUNCEMENTS[idx]
+        elif direction == 'down' and idx < len(ANNOUNCEMENTS)-1:
+            ANNOUNCEMENTS[idx], ANNOUNCEMENTS[idx+1] = ANNOUNCEMENTS[idx+1], ANNOUNCEMENTS[idx]
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 404
 
 @app.route('/api/query/<int:api_id>', methods=['POST'])
 def query_api(api_id):
